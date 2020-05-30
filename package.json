@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "lit-element": "^2.3.1",
-    "lit-html": "^1.2.1"
+    "lit-html": "^1.2.1",
+    "mobx": "^5.15.4",
+    "@adobe/lit-mobx": "0.0.2"
   },
   "devDependencies": {
     "@snowpack/app-scripts-lit-element": "^1.0.0",

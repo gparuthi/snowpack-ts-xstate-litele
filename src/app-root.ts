@@ -1,44 +1,46 @@
 import { customElement, property, LitElement, html, css } from 'lit-element';
+import { observable, action } from 'mobx';
+import { MobxLitElement } from '@adobe/lit-mobx';
 
-@customElement('app-root')
-export class AppRoot extends LitElement {
-  @property() message = 'Learn LitElement';
 
-  static get styles() {
-    return css`
-      h1 {
-        font-size: 4rem;
-      }
-      .wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        height: 100vh;
-        background-color: #2196f3;
-        background: linear-gradient(315deg, #b4d2ea 0%, #2196f3 100%);
-        font-size: 24px;
-      }
-      .link {
-        color: white;
-      }
-    `;
+// create a mobx observable
+class Counter {
+  @observable
+  public count = 0;
+
+  @action
+  public increment() {
+    this.count++;
   }
+}
+
+const counter = new Counter();
+
+// create instance that can be shared across components
+@customElement('app-root')
+export class AppRoot extends MobxLitElement {
+  private counter = counter
 
   render() {
     return html`
       <div class="wrapper">
-        <h1>LitElement + Snowpack</h1>
-        <p>Edit <code>src/app-root.ts</code> and save to reload.</p>
-        <a
-          class="link"
-          href="https://lit-element.polymer-project.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ${this.message}
-        </a>
+        
+          Counter is ${this.counter.count}
+
+            <br />
+            <button @click=${this.incrementCount}>Add</button>
+        
       </div>
     `;
+  }
+  public firstUpdated() {
+    // you can update in first updated
+    this.counter.increment(); // value is now 1
+    console.log("here ", this.counter.count)
+  }
+  private incrementCount() {
+    this.counter.increment();
+    console.log("here2 ", this.counter.count)
+    
   }
 }
