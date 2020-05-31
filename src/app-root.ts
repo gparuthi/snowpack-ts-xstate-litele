@@ -13,7 +13,7 @@ type CounterEvent =
 
 interface CounterStateSchema {
     states:{
-      inc : {}
+      inc : {},
     }
   }
 
@@ -28,15 +28,20 @@ const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
       entry: 'increment',
       on: {
         INC: { 
-          actions: assign({ count: context => context.count + 1 }),
+          actions: ['increment'],
           cond: isNotMax
         },
         DEC: {
-          actions: assign({ count: context => context.count - 1 }),
+          actions: ['decrement'],
           cond: isNotMax
         },
       }
     }
+  }
+},{
+  actions: {
+    increment: assign({ count: context => context.count + 1 }),
+    decrement: assign({ count: context => context.count - 1 })
   }
 });
 
