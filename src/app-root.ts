@@ -1,46 +1,76 @@
 import { customElement, property, LitElement, html, css } from 'lit-element';
-import { observable, action } from 'mobx';
-import { MobxLitElement } from '@adobe/lit-mobx';
+import { Machine, interpret, assign, createMachine, Interpreter, StateMachine } from 'xstate';
+import { XstateLitElement } from './xstate-lit-element';
 
-
-// create a mobx observable
-class Counter {
-  @observable
-  public count = 0;
-
-  @action
-  public increment() {
-    this.count++;
-  }
+interface CounterContext {
+  count: number;
 }
 
-const counter = new Counter();
+type CounterEvent = 
+  | {type: "INC"}
+
+
+interface CounterStateSchema {
+    states:{
+      start : {}
+    }
+  }
+
+const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
+  initial: 'start',
+  context: { count: 0 },
+  states: {
+    start: {
+      entry: 'increment',
+      on: {
+        INC: 'start',
+      }
+    }
+  }
+}, {actions: {
+  increment: assign({ count: context => context.count + 1 })
+}});
 
 // create instance that can be shared across components
 @customElement('app-root')
-export class AppRoot extends MobxLitElement {
-  private counter = counter
+export class AppRoot extends XstateLitElement<CounterContext> {
+  @property() message = 'Learn LitElement';
 
+  constructor() {
+    super(countMachine)
+  }
+  static get styles() {
+    return css`
+      h1 {
+        font-size: 4rem;
+      }
+      .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #2196f3;
+        background: linear-gradient(315deg, #b4d2ea 0%, #2196f3 100%);
+        font-size: 24px;
+      }
+      .link {
+        color: white;
+      }
+    `;
+  }
   render() {
+
     return html`
       <div class="wrapper">
         
-          Counter is ${this.counter.count}
-
+          hi ${this.context.count} 
             <br />
-            <button @click=${this.incrementCount}>Add</button>
-        
+            <button @click=${this.increment}>increment</button>        
       </div>
     `;
   }
-  public firstUpdated() {
-    // you can update in first updated
-    this.counter.increment(); // value is now 1
-    console.log("here ", this.counter.count)
-  }
-  private incrementCount() {
-    this.counter.increment();
-    console.log("here2 ", this.counter.count)
-    
+  private increment() {
+    this.service.send('INC')
   }
 }
