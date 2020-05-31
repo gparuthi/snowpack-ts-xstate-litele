@@ -13,10 +13,12 @@ type CounterEvent =
 
 interface CounterStateSchema {
     states:{
-      inc : {},
-      dec : {}
+      inc : {}
     }
   }
+
+const isNotMax = (context: CounterContext) => context.count < 10;
+const isNotMin = (context: CounterContext) => context.count >= 0;
 
 const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
   initial: 'inc',
@@ -25,22 +27,18 @@ const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
     inc: {
       entry: 'increment',
       on: {
-        INC: 'inc',
-        DEC: 'dec'
-      }
-    },
-    dec: {
-      entry: 'decrement',
-      on: {
-        INC: 'inc',
-        DEC: 'dec'
+        INC: { 
+          actions: assign({ count: context => context.count + 1 }),
+          cond: isNotMax
+        },
+        DEC: {
+          actions: assign({ count: context => context.count - 1 }),
+          cond: isNotMax
+        },
       }
     }
   }
-}, {actions: {
-  increment: assign({ count: context => context.count + 1 }),
-  decrement: assign({ count: context => context.count - 1 })
-}});
+});
 
 // create instance that can be shared across components
 @customElement('app-root')
