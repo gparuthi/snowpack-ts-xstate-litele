@@ -8,27 +8,38 @@ interface CounterContext {
 
 type CounterEvent = 
   | {type: "INC"}
+  | {type: "DEC"}
 
 
 interface CounterStateSchema {
     states:{
-      start : {}
+      inc : {},
+      dec : {}
     }
   }
 
 const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
-  initial: 'start',
+  initial: 'inc',
   context: { count: 0 },
   states: {
-    start: {
+    inc: {
       entry: 'increment',
       on: {
-        INC: 'start',
+        INC: 'inc',
+        DEC: 'dec'
+      }
+    },
+    dec: {
+      entry: 'decrement',
+      on: {
+        INC: 'inc',
+        DEC: 'dec'
       }
     }
   }
 }, {actions: {
-  increment: assign({ count: context => context.count + 1 })
+  increment: assign({ count: context => context.count + 1 }),
+  decrement: assign({ count: context => context.count - 1 })
 }});
 
 // create instance that can be shared across components
@@ -66,11 +77,15 @@ export class AppRoot extends XstateLitElement<CounterContext> {
         
           hi ${this.context.count} 
             <br />
-            <button @click=${this.increment}>increment</button>        
+            <button @click=${this.increment}>increment</button>
+            <button @click=${this.decrement}>decrementx</button>        
       </div>
     `;
   }
   private increment() {
     this.service.send('INC')
+  }
+  private decrement() {
+    this.service.send('DEC')
   }
 }
