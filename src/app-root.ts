@@ -14,28 +14,34 @@ type CounterEvent =
 interface CounterStateSchema {
     states:{
       inc : {},
+      dec : {}
     }
   }
 
 const isNotMax = (context: CounterContext) => context.count < 10;
-const isNotMin = (context: CounterContext) => context.count >= 0;
+const isNotMin = (context: CounterContext) => context.count > 0;
 
 const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
   initial: 'inc',
   context: { count: 0 },
   states: {
     inc: {
-      entry: 'increment',
-      on: {
-        INC: { 
-          actions: ['increment'],
-          cond: isNotMax
-        },
-        DEC: {
-          actions: ['decrement'],
-          cond: isNotMax
-        },
-      }
+      after: {
+        100: [
+          {target: 'inc', cond: isNotMax },
+          {target: 'dec'}
+        ]
+      },
+      entry: 'increment'
+    },
+    dec: {
+      after: {
+        100: [
+          { target: 'dec', cond: isNotMin },
+          { target: 'inc' }
+        ]
+      },
+      entry: 'decrement'
     }
   }
 },{
