@@ -13,8 +13,8 @@ type CounterEvent =
 
 interface CounterStateSchema {
     states:{
-      inc : {},
-      dec : {}
+      growing : {},
+      shrinking : {}
     }
   }
 
@@ -22,23 +22,23 @@ const isNotMax = (context: CounterContext) => context.count < 10;
 const isNotMin = (context: CounterContext) => context.count > 0;
 
 const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
-  initial: 'inc',
+  initial: 'growing',
   context: { count: 0 },
   states: {
-    inc: {
+    growing: {
       after: {
         100: [
-          {target: 'inc', cond: isNotMax },
-          {target: 'dec'}
+          {target: 'growing', cond: isNotMax },
+          {target: 'shrinking'}
         ]
       },
       entry: 'increment'
     },
-    dec: {
+    shrinking: {
       after: {
         100: [
-          { target: 'dec', cond: isNotMin },
-          { target: 'inc' }
+          { target: 'shrinking', cond: isNotMin },
+          { target: 'growing' }
         ]
       },
       entry: 'decrement'
@@ -58,6 +58,7 @@ export class AppRoot extends XstateLitElement<CounterContext> {
 
   constructor() {
     super(countMachine)
+    
   }
   static get styles() {
     return css`
@@ -80,17 +81,21 @@ export class AppRoot extends XstateLitElement<CounterContext> {
     `;
   }
   render() {
-
     return html`
       <div class="wrapper">
         
-          hi ${this.context.count} 
+          hi ${this.state.value} 
             <br />
             <button @click=${this.increment}>increment</button>
-            <button @click=${this.decrement}>decrementx</button>        
+            <button @click=${this.decrement}>decrementx</button>
+            
+            <canvas id="myCanvas" width="450" height="450"></canvas>
+
+
       </div>
     `;
   }
+
   private increment() {
     this.service.send('INC')
   }

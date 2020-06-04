@@ -5,6 +5,7 @@ export class XstateLitElement<T> extends LitElement {
     @property() machine: StateMachine<any, any, any>
     @property() service: Interpreter<any>
     @property() context: T
+    @property() state: any
 
     constructor(machine: StateMachine<any, any, any>) {
         super()
@@ -13,6 +14,7 @@ export class XstateLitElement<T> extends LitElement {
         this.context = machine.context as T
         this.service = interpret(machine).onTransition(state => {
             this.requestUpdate()
+            this.state = state
             this.context = state.context
         });
         this.service.start()
