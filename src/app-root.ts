@@ -8,19 +8,14 @@ interface CounterContext {
 
 type CounterEvent = 
   | {type: "INC"}
-  | {type: "DEC"}
 
 
 interface CounterStateSchema {
     states:{
-      growing : {},
-      shrinking : {}
+      growing : {}
     }
   }
-const D = 0.01, MAX_R = Math.PI, _TSTEP = 20
-
-const isNotMax = (context: CounterContext) => context.count < MAX_R;
-const isNotMin = (context: CounterContext) => context.count > 0;
+const D = 0.01
 
 const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
   initial: 'growing',
@@ -28,27 +23,16 @@ const countMachine = Machine<CounterContext, CounterStateSchema, CounterEvent>({
   states: {
     growing: {
       after: {
-        20: [
-          {target: 'growing', cond: isNotMax },
-          {target: 'shrinking'}
+        15: [
+          {target: 'growing'}
         ]
       },
       entry: 'increment'
-    },
-    shrinking: {
-      after: {
-        20: [
-          { target: 'shrinking', cond: isNotMin },
-          { target: 'growing' }
-        ]
-      },
-      entry: 'decrement'
     }
   }
 },{
   actions: {
-    increment: assign({ count: context => context.count + D }),
-    decrement: assign({ count: context => context.count - D })
+    increment: assign({ count: context => context.count + D })
   }
 });
 var sun = new Image();
@@ -99,8 +83,8 @@ export class AppRoot extends XstateLitElement<CounterContext> {
     window.requestAnimationFrame(this.draw.bind(this))
     return html`
       <div class="wrapper">
-        
-          <canvas id="draw" width="500" height="300"></canvas>
+
+          <canvas id="draw" width="300" height="300"></canvas>
       </div>
     `;
   }
@@ -117,12 +101,12 @@ export class AppRoot extends XstateLitElement<CounterContext> {
       var cnv = <HTMLCanvasElement>this.shadowRoot!.getElementById('draw')
 
       var ctx = <CanvasRenderingContext2D>cnv.getContext('2d');
-      var radius = convertRange(Math.cos(this.context.count), [0, 1], [50, 100])
+      var radius = convertRange(Math.sin(this.context.count), [0, 1], [50, 100])
 
       // ctx.globalCompositeOperation = 'destination-over';
       ctx.clearRect(0, 0, 500, 500); // clear canvas
 
-      ctx.fillStyle = "#000000";
+      ctx.fillStyle = "rgb(0, 255, 255, 0.3)";
       ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
       ctx.save();
       ctx.translate(150, 150);
