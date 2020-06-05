@@ -1,5 +1,5 @@
 .build
 build
-web_modules
+./web_modules
 node_modules
 .DS_Store
